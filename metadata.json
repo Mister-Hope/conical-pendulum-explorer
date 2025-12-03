@@ -1,0 +1,5 @@
+{
+  "name": "Conical Pendulum Explorer",
+  "description": "Interactive physics demonstration showing how angular velocity in a conical pendulum depends only on height, independent of mass and string length.",
+  "requestFramePermissions": []
+}
