@@ -1,0 +1,24 @@
+{
+  "name": "conical-pendulum-explorer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "prettier --write .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@vitejs/plugin-react": "5.1.1",
+    "prettier": "3.7.4",
+    "typescript": "5.9.3",
+    "vite": "7.2.6"
+  },
+  "packageManager": "pnpm@10.24.0"
+}
