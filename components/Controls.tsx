@@ -22,7 +22,7 @@ export const Controls: React.FC<ControlsProps> = ({
   onUpdatePendulum,
 }) => {
   return (
-    <div className="bg-slate-900 rounded-xl p-5 border border-slate-800 shadow-lg">
+    <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 shadow-lg">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-white flex items-center gap-3">
           <svg
