@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { PendulumConfig } from "../types";
+import { GRAVITY } from "../constants";
 
 interface PendulumSimulationProps {
   height: number;
@@ -53,7 +54,7 @@ export const PendulumSimulation: React.FC<PendulumSimulationProps> = ({
       const width = canvas.width;
       const heightPx = canvas.height;
       const centerX = width / 2;
-      const centerY = heightPx / 3; // Shift origin up a bit
+      const centerY = heightPx / 6;
       const metersToPixels = 220; // Scale up for large screen
 
       // Clear Canvas
@@ -85,6 +86,88 @@ export const PendulumSimulation: React.FC<PendulumSimulationProps> = ({
           scale: scale,
           zDepth: z2, // Used for sorting
         };
+      };
+
+      // Helper to draw 3D Arrow
+      const drawArrow3D = (
+        startX: number,
+        startY: number,
+        startZ: number,
+        vecX: number,
+        vecY: number,
+        vecZ: number,
+        color: string,
+        label: string,
+        isDashed: boolean = false,
+      ) => {
+        const endX = startX + vecX;
+        const endY = startY + vecY;
+        const endZ = startZ + vecZ;
+
+        const pStart = project(startX, startY, startZ);
+        const pEnd = project(endX, endY, endZ);
+
+        // Line
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 5 * pStart.scale;
+        if (isDashed) ctx.setLineDash([5, 5]);
+        else ctx.setLineDash([]);
+        ctx.moveTo(pStart.x, pStart.y);
+        ctx.lineTo(pEnd.x, pEnd.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Arrowhead
+        const headLen = 15 * pEnd.scale;
+        const angle = Math.atan2(pEnd.y - pStart.y, pEnd.x - pStart.x);
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        ctx.moveTo(pEnd.x, pEnd.y);
+        ctx.lineTo(
+          pEnd.x - headLen * Math.cos(angle - Math.PI / 6),
+          pEnd.y - headLen * Math.sin(angle - Math.PI / 6),
+        );
+        ctx.lineTo(
+          pEnd.x - headLen * Math.cos(angle + Math.PI / 6),
+          pEnd.y - headLen * Math.sin(angle + Math.PI / 6),
+        );
+        ctx.fill();
+
+        // Label
+        if (label) {
+          ctx.font = `bold ${24 * pEnd.scale}px sans-serif`;
+          ctx.fillStyle = color;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          // Offset label slightly past arrow tip
+          const labelX = pEnd.x + (headLen + 15) * Math.cos(angle);
+          const labelY = pEnd.y + (headLen + 15) * Math.sin(angle);
+          ctx.fillText(label, labelX, labelY);
+        }
+      };
+
+      // Helper to draw dashed connecting line (no arrow)
+      const drawDashedLine3D = (
+        x1: number,
+        y1: number,
+        z1: number,
+        x2: number,
+        y2: number,
+        z2: number,
+        color: string,
+      ) => {
+        const p1 = project(x1, y1, z1);
+        const p2 = project(x2, y2, z2);
+
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5 * p1.scale;
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
       };
 
       // --- Draw Scene Elements ---
@@ -187,8 +270,126 @@ export const PendulumSimulation: React.FC<PendulumSimulationProps> = ({
         ctx.arc(obj.pos.x, obj.pos.y, bobSize, 0, Math.PI * 2);
         ctx.fill();
 
+        // --- Force Analysis for Blue Ball (ID=1) ---
+        if (obj.config.id === 1) {
+          const m = obj.config.mass;
+          const r = obj.phys.r;
+
+          // Scale factor for vectors (pixels per Newton approx, adjust for visibility)
+          const forceScale = 0.05; // Visual scaling factor
+
+          // Gravity: mg (Downwards +Y)
+          // Color: Blue (#3b82f6)
+          const vecG_mag = m * GRAVITY * forceScale;
+          drawArrow3D(
+            obj.phys.x,
+            obj.phys.y,
+            obj.phys.z,
+            0,
+            vecG_mag,
+            0,
+            "#3b82f6",
+            "mg",
+          );
+
+          // Tension Components
+          // Ty balances gravity: magnitude mg, Direction Up (-Y)
+          // Color: Light Blue / Purple (#a78bfa) - Neutral balance color
+          const vecTy_mag = m * GRAVITY * forceScale;
+          drawArrow3D(
+            obj.phys.x,
+            obj.phys.y,
+            obj.phys.z,
+            0,
+            -vecTy_mag,
+            0,
+            "#a78bfa",
+            "",
+            true,
+          ); // Dashed
+
+          // Tx provides centripetal force: Fn = m * omega^2 * r
+          // Direction: Towards center (0, y, 0)
+          // Color: Yellow (#eab308)
+          const distToCenter = Math.sqrt(obj.phys.x ** 2 + obj.phys.z ** 2);
+          const Fn_mag = m * angularVelocity ** 2 * r * forceScale;
+
+          if (distToCenter > 0.001) {
+            const dirX = -obj.phys.x / distToCenter;
+            const dirZ = -obj.phys.z / distToCenter;
+
+            // Draw Fn (Tx)
+            drawArrow3D(
+              obj.phys.x,
+              obj.phys.y,
+              obj.phys.z,
+              dirX * Fn_mag,
+              0,
+              dirZ * Fn_mag,
+              "#eab308",
+              "Fn",
+              true, // Dashed
+            );
+
+            // Total Tension T = Vector Sum
+            // Color: Red (#ef4444)
+            drawArrow3D(
+              obj.phys.x,
+              obj.phys.y,
+              obj.phys.z,
+              dirX * Fn_mag,
+              -vecTy_mag,
+              dirZ * Fn_mag,
+              "#ef4444",
+              "FT",
+            );
+
+            // --- Decomposition Dashed Lines (Parallelogram) ---
+            // Calculate Tip Positions
+            const tipT = {
+              x: obj.phys.x + dirX * Fn_mag,
+              y: obj.phys.y - vecTy_mag,
+              z: obj.phys.z + dirZ * Fn_mag,
+            };
+
+            const tipTy = {
+              x: obj.phys.x,
+              y: obj.phys.y - vecTy_mag,
+              z: obj.phys.z,
+            };
+
+            const tipFn = {
+              x: obj.phys.x + dirX * Fn_mag,
+              y: obj.phys.y,
+              z: obj.phys.z + dirZ * Fn_mag,
+            };
+
+            // Line from Tip of Ty -> Tip of T (Parallel to Fn)
+            drawDashedLine3D(
+              tipTy.x,
+              tipTy.y,
+              tipTy.z,
+              tipT.x,
+              tipT.y,
+              tipT.z,
+              "#94a3b8",
+            );
+
+            // Line from Tip of Fn -> Tip of T (Parallel to Ty)
+            drawDashedLine3D(
+              tipFn.x,
+              tipFn.y,
+              tipFn.z,
+              tipT.x,
+              tipT.y,
+              tipT.z,
+              "#94a3b8",
+            );
+          }
+        }
+
         // Labels (High contrast for projector)
-        ctx.font = `bold ${Math.max(12, 14 * obj.pos.scale)}px sans-serif`;
+        ctx.font = `bold ${Math.max(20, 16 * obj.pos.scale)}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 

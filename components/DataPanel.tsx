@@ -39,7 +39,7 @@ export const DataPanel: React.FC<DataPanelProps> = ({
 
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-          <div className="text-sm text-slate-400 uppercase tracking-wider mb-2 font-bold">
+          <div className="text-lg text-slate-400 uppercase tracking-wider mb-2 font-bold">
             角速度 <Latex>\omega</Latex>
           </div>
           <div className="text-3xl font-mono text-white font-bold">
@@ -48,7 +48,7 @@ export const DataPanel: React.FC<DataPanelProps> = ({
           </div>
         </div>
         <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-          <div className="text-sm text-slate-400 uppercase tracking-wider mb-2 font-bold">
+          <div className="text-lg text-slate-400 uppercase tracking-wider mb-2 font-bold">
             周期 <Latex>T</Latex>
           </div>
           <div className="text-3xl font-mono text-white font-bold">
@@ -59,8 +59,8 @@ export const DataPanel: React.FC<DataPanelProps> = ({
       </div>
 
       <div className="overflow-hidden rounded-lg border border-slate-800">
-        <table className="w-full text-left">
-          <thead className="text-sm text-slate-300 uppercase bg-slate-800">
+        <table className="w-full text-lg text-left">
+          <thead className="text-slate-300 uppercase bg-slate-800">
             <tr>
               <th className="px-4 py-3">对象</th>
               <th className="px-4 py-3">
@@ -71,7 +71,7 @@ export const DataPanel: React.FC<DataPanelProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800 bg-slate-900/50 text-base">
+          <tbody className="divide-y divide-slate-800 bg-slate-900/50 text-md">
             {pendulums.map((p) => {
               const radius = Math.sqrt(
                 Math.max(0, p.length * p.length - height * height),

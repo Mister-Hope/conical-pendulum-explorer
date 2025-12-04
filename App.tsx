@@ -2,23 +2,19 @@ import React, { useState, useMemo, useEffect } from "react";
 import { PendulumSimulation } from "./components/PendulumSimulation";
 import { Controls } from "./components/Controls";
 import { DataPanel } from "./components/DataPanel";
-import { Latex } from "./components/Latex";
 import { Theory } from "./components/Theory";
-import { GRAVITY } from "./constants";
+import { GRAVITY, PENDULUM_PRESETS } from "./constants";
 import { PendulumConfig } from "./types";
-
-const INITIAL_PENDULUMS: PendulumConfig[] = [
-  { id: 1, length: 2.0, mass: 1.0, color: "#3b82f6", label: "蓝球" },
-  { id: 2, length: 1.5, mass: 2.0, color: "#ef4444", label: "红球" },
-  { id: 3, length: 1.8, mass: 0.5, color: "#22c55e", label: "绿球" },
-];
 
 export default function App() {
   // Height (h) is the independent variable shared by all conical pendulums
   const [height, setHeight] = useState<number>(1.2);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [pendulums, setPendulums] =
-    useState<PendulumConfig[]>(INITIAL_PENDULUMS);
+
+  // Start with only the first pendulum (Blue)
+  const [pendulums, setPendulums] = useState<PendulumConfig[]>([
+    PENDULUM_PRESETS[0],
+  ]);
 
   // Calculate shared physics properties
   const angularVelocity = useMemo(() => Math.sqrt(GRAVITY / height), [height]);
@@ -55,6 +51,19 @@ export default function App() {
     );
   };
 
+  const handleAddPendulum = () => {
+    if (pendulums.length >= 3) return;
+    const nextPresetIndex = pendulums.length;
+    if (nextPresetIndex < PENDULUM_PRESETS.length) {
+      setPendulums([...pendulums, PENDULUM_PRESETS[nextPresetIndex]]);
+    }
+  };
+
+  const handleRemovePendulum = () => {
+    if (pendulums.length <= 1) return;
+    setPendulums(pendulums.slice(0, -1));
+  };
+
   return (
     <div className="h-screen w-screen bg-slate-950 text-slate-100 font-sans overflow-hidden flex flex-col">
       {/* Header - Compact */}
@@ -75,7 +84,19 @@ export default function App() {
             setIsPlaying={setIsPlaying}
             pendulums={pendulums}
             onUpdatePendulum={handlePendulumUpdate}
+            onAddPendulum={handleAddPendulum}
+            onRemovePendulum={handleRemovePendulum}
           />
+          <div className="mt-auto pt-4 text-xs text-slate-500 text-center">
+            制作者：
+            <a
+              href="https://github.com/mister-hope"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Mister Hope
+            </a>
+          </div>
         </div>
 
         {/* Middle Column: Simulation (Flexible Width) */}

@@ -10,6 +10,8 @@ interface ControlsProps {
   setIsPlaying: (playing: boolean) => void;
   pendulums: PendulumConfig[];
   onUpdatePendulum: (id: number, updates: Partial<PendulumConfig>) => void;
+  onAddPendulum: () => void;
+  onRemovePendulum: () => void;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -20,6 +22,8 @@ export const Controls: React.FC<ControlsProps> = ({
   setIsPlaying,
   pendulums,
   onUpdatePendulum,
+  onAddPendulum,
+  onRemovePendulum,
 }) => {
   return (
     <div className="bg-slate-900 rounded-xl p-3 border border-slate-800 shadow-lg">
@@ -99,9 +103,8 @@ export const Controls: React.FC<ControlsProps> = ({
             >
               垂直高度 <Latex>h</Latex>
             </label>
-            <span className="text-3xl font-mono text-blue-400 font-bold">
-              {height.toFixed(2)}{" "}
-              <span className="text-lg text-slate-500">m</span>
+            <span className="text-3xl text-blue-400 font-bold">
+              {height.toFixed(2)}m
             </span>
           </div>
 
@@ -115,7 +118,7 @@ export const Controls: React.FC<ControlsProps> = ({
             onChange={(e) => setHeight(parseFloat(e.target.value))}
             className="w-full h-4 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
           />
-          <div className="flex justify-between text-sm text-slate-500 mt-2 font-mono">
+          <div className="flex justify-between text-slate-200 mt-2">
             <span>0.10m</span>
             <span>Max (L限制): {maxHeight.toFixed(2)}m</span>
           </div>
@@ -123,9 +126,53 @@ export const Controls: React.FC<ControlsProps> = ({
 
         {/* Individual Pendulum Controls */}
         <div className="border-t border-slate-700 pt-6">
-          <h3 className="text-lg font-bold text-slate-200 mb-4">
-            对象参数调节
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-slate-200">对象参数调节</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={onRemovePendulum}
+                disabled={pendulums.length <= 1}
+                className="w-8 h-8 flex items-center justify-center rounded bg-slate-800 text-slate-200 hover:bg-red-900/50 hover:text-red-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="减少小球"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+              <button
+                onClick={onAddPendulum}
+                disabled={pendulums.length >= 3}
+                className="w-8 h-8 flex items-center justify-center rounded bg-slate-800 text-slate-200 hover:bg-green-900/50 hover:text-green-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="增加小球"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
           <div className="space-y-4">
             {pendulums.map((p) => (
               <div
@@ -146,11 +193,12 @@ export const Controls: React.FC<ControlsProps> = ({
                   {/* Length Slider */}
                   <div>
                     <div className="flex justify-between text-base mb-1">
-                      <span className="text-slate-400">
+                      <span>
                         绳长 <Latex>L</Latex>
                       </span>
                       <span className="font-mono text-slate-200">
-                        {p.length.toFixed(2)}m
+                        {p.length.toFixed(2)}
+                        <span className="font-serif">m</span>
                       </span>
                     </div>
                     <input
@@ -170,11 +218,12 @@ export const Controls: React.FC<ControlsProps> = ({
                   {/* Mass Slider */}
                   <div>
                     <div className="flex justify-between text-base mb-1">
-                      <span className="text-slate-400">
+                      <span>
                         质量 <Latex>m</Latex>
                       </span>
                       <span className="font-mono text-slate-200">
-                        {p.mass.toFixed(1)}kg
+                        {p.mass.toFixed(1)}
+                        <span className="font-serif">kg</span>
                       </span>
                     </div>
                     <input
