@@ -18,18 +18,18 @@ export const Theory: React.FC = ({}) => {
             受力分析
           </h3>
           <p className="mb-2 text-slate-400">
-            小球受重力 <Latex>mg</Latex> 和绳子拉力 <Latex>T</Latex>。
-            在竖直方向受力平衡，水平方向提供向心力。
+            小球受重力 <Latex>mg</Latex> 和绳子拉力 <Latex>F_T</Latex>。
+            由于小球在水平面上做匀速圆周运动，小球在竖直方向受力平衡，水平方向的合力充当向心力。
           </p>
           <div className="bg-slate-950 p-4 rounded-lg border border-slate-800">
             <div className="mb-2">
-              竖直方向：<Latex block>{String.raw`T \cos\theta = mg`}</Latex>
+              竖直方向：<Latex block>{String.raw`F_T \cos\theta = mg`}</Latex>
             </div>
             <div>
               水平方向：
               <Latex
                 block
-              >{String.raw`T \sin\theta = F_{n} = m \omega^2 r`}</Latex>
+              >{String.raw`F_T \sin\theta = F_{n} = m \omega^2 r = m \frac{4\pi^2}{T^2} r`}</Latex>
             </div>
           </div>
         </section>
@@ -64,15 +64,19 @@ export const Theory: React.FC = ({}) => {
             <Latex
               block
             >{String.raw`\tan\theta = \frac{m \omega^2 r}{mg} = \frac{\omega^2 r}{g}`}</Latex>
-            <p className="text-center my-2">
-              代入几何关系 <Latex>{String.raw`\tan\theta = r/h`}</Latex>
-            </p>
+          </div>
+          <p className="text-slate-400 my-2">
+            代入几何关系 <Latex>{String.raw`\tan\theta = r/h`}</Latex>
+          </p>
+          <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-3">
             <Latex
               block
             >{String.raw`\frac{r}{h} = \frac{\omega^2 r}{g}`}</Latex>
-            <p className="text-center my-2">
-              消去 <Latex>r</Latex> (当 <Latex>r \neq 0</Latex>)
-            </p>
+          </div>
+          <p className="text-slate-400 my-2">
+            消去 <Latex>r</Latex> (当 <Latex>r \neq 0</Latex>)
+          </p>
+          <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-3">
             <Latex
               block
             >{String.raw`\omega^2 = \frac{g}{h} \implies \omega = \sqrt{\frac{g}{h}}`}</Latex>
